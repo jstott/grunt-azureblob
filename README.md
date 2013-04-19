@@ -12,8 +12,10 @@ Custom connection arguments can be set in service.
   containerName: null, // container name, required
   containerDelete: false, // deletes container if it exists
   containerOptions: {publicAccessLevel: "blob"}, // container options
-  fileNamePrefix: '', // prefix to use for blob name e.g. '0.0.1'
-  metadata: {}, // file metadata properties
+  copySimulation: false,
+  folderPrefix: '', // prefix to use for blob name e.g. '0.0.1'
+  maskBaseDir: '',  // mask off directory portion to map files to root in storage container
+  metadata: {cacheControl: 'public, max-age=31556926'}, // file metadata properties
   gzip: false // gzip files
 };
 ```
@@ -22,20 +24,15 @@ Custom connection arguments can be set in service.
 ```javascript
 grunt.initConfig({
   'azureblob': {
-    options: {
-      // default values to use at each target level
-      containerName: null, // default container name, required at target level
-      containerDelete: false, // deletes container if it exists
-      fileNamePrefix: '',
-      metadata: {}, // file metadata properties,
-      gzip: false // gzip files
+    options: { // override default values at each target level
+      folderPrefix: 'v0.1.2/'
     },
     assets: options: {
       containerName: 'assets',
-      fileNamePrefix: '',
-      gzip: true
+      gzip: true,
+      maskBaseDir: '../cdn/' 
     },
-    source: 'assets/**/*'
+    src: 'assets/**/*'
   }
 });
 ```
