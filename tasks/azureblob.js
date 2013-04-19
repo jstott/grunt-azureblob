@@ -110,7 +110,7 @@ module.exports = function(grunt) {
 
       var destination = source.replace(options.maskBaseDir,options.destPrefix),  
           meta = options.metadata,
-          src = source,
+          srcFile = path.basename(source),
           gzip = options.gzip,
           fileExt = path.extname(source),
           fnCopyToBlob;
@@ -128,7 +128,7 @@ module.exports = function(grunt) {
       meta.contentTypeHeader = meta.contentTypeHeader || mime.lookup(source);
       meta.ContentEncoding = meta.ContentEncoding || gzip ? 'gzip': null;
 
-      grunt.log.write(util.format('\tCopy %s => %s/%s ', source, options.containerName, destination));
+      grunt.log.write(util.format('\tCopy %s => %s/%s ', srcFile, options.containerName, destination));
       
       if(options.copySimulation){
         grunt.log.ok('sim');

@@ -12,12 +12,13 @@
     "url": "https://github.com/jstott/grunt-azureblob.git"
   },
   "dependencies": {
-    "azure": "~0.6.11",
-    "mime": "~1.2.9"
+    "azure": ">= 0.7.2",
+    "mime": "~1.2.9",
+    "q": ">=0.9.3"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.3.0",
-    "grunt-contrib-nodeunit": "~0.1.2"
+    "grunt-contrib-jshint": ">=0.4.0",
+    "grunt-contrib-nodeunit": "~0.1.2",
   }
 }
