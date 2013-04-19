@@ -17,7 +17,7 @@ module.exports = function(grunt) {
         serviceOptions: [], // custom arguments to azure.createBlobService
         containerName: null, // container name, required
         containerDelete: false, // deletes container if it exists
-        containerOptions: {publicAccessLevel: "blob"}, // container options
+        containerOptions: {publicAccessLevel: "blob", timeoutIntervalInMs: 10000}, // container options
         metadata: {cacheControl: 'public, max-age=31556926'}, // file metadata properties
         copySimulation: false,
         destPrefix: '', // detination path prefix to use for blob name e.g. 'v0.0.1/'
@@ -32,7 +32,7 @@ module.exports = function(grunt) {
     //tmp.setGracefulCleanup(); //cleanup the temporary files even when an uncaught exception occurs.
 
     // execute task
-    Q.when(deleteContainer)
+    Q.fcall(deleteContainer)
       .then(createContainer)
       .then(iterateFiles)
       .then(function(count) {
@@ -68,39 +68,70 @@ module.exports = function(grunt) {
     // returns q promise
     function deleteContainer() {
       var deferred = Q.defer();
-      if (options.containerDelete) { 
-        blobService.deleteContainer(options.containerName, function(err){
-          if (err) {
-            deferred.reject(err);
-          }
-          grunt.log.ok();
-          deferred.resolve();
-        });
-      } else {
+     
+      if (!options.containerDelete) {
+        return true;
+      } 
+      grunt.log.write(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
+      blobService.deleteContainer(options.containerName, {timeoutIntervalInMs:25000}, function(err){
+        /* // ignore errors for now
+        if (err) {
+          grunt.log.writeln(err);
+          deferred.reject(err);
+        }
+        */
+        grunt.log.ok();
         deferred.resolve();
-      }
+      });
       return deferred.promise;
     }
 
     // Creates Blob container name in options.containerName, if it doesn't already exist
     // returns q promise
     function createContainer() {
-      var deferred = Q.defer();
-      grunt.verbose.write(util.format('Create blob containter [%s] ...', options.containerName));
-      blobService.createContainerIfNotExists(options.containerName, options.containerOptions, function(error){
-          if (error) {
-            if (error.code === 'ContainerBeingDeleted') {
-              grunt.log.writeln(util.format('Blob Container [%s] being deleted, retrying in 10 seconds', options.containerName));
-              return setTimeout(function() {
-                createContainer();
-              }, 10000);
-            } else {
-              deferred.reject(error);
+      var deferred = Q.defer(),
+          completed = false,
+          count = 0,
+          waitMs = 100,
+          maxTry = 10;
+
+      options.containerOptions.timeoutIntervalInMs = options.containerOptions.timeoutIntervalInMs || 15000; // 10sec
+      grunt.log.write(util.format('%s - Create blob containter [%s] ...', self.nameArgs, options.containerName));
+      
+      grunt.util.async.whilst( 
+          function () { 
+            return  ((count < maxTry) && !completed); // sync truth test before each execution of fn
+          },
+          function(callback){
+            count++;
+            setTimeout(function() {
+                  grunt.log.write('.');
+                  blobService.createContainerIfNotExists(options.containerName, options.containerOptions, function(error){
+                      if (error) {
+                        if (error.code !== 'ContainerBeingDeleted') {
+                          callback(error); // error - abort
+                        } else {
+                          callback();
+                        }
+                      } else {
+                        completed = true;
+                        callback(); // success
+                      }
+                  });
+                },waitMs);
+             waitMs = 10000; // up the wait-time after the initial attempt
+          },
+          function(err) {
+              if (completed) {
+                grunt.log.ok();
+                deferred.resolve();
+              } else {
+                grunt.log.writeln('createContainer not completed - deferred.rejected');
+                grunt.log.error(err);
+                deferred.reject(err);
+              } 
             }
-        }
-        grunt.verbose.ok();
-        deferred.resolve();
-      });
+          );
 
       return deferred.promise;
     } 
@@ -185,13 +216,13 @@ module.exports = function(grunt) {
         inp = fs.createReadStream(source);
         inp.on('close', function() {
           //grunt.log.writeln(util.format('inp stream:close = %s', s));
-          //deferred.resolve(tempFile);
+          deferred.resolve(tempFile);
         });
         
         out = fs.createWriteStream(tempFile);
         out.on('close', function() {
           //grunt.log.writeln(util.format('out stream:close = %s', tempFile));
-          deferred.resolve(tempFile);
+          //deferred.resolve(tempFile);
         });
         inp.pipe(gzip).pipe(out);
         //inp.pipe(out); // test to just copy file
@@ -201,7 +232,7 @@ module.exports = function(grunt) {
 
     function fileExists (dest) {
 
-      if (fs.statSync(dest).isFile && fs.existsSync(dest) ) {
+      if (fs.statSync(dest).isFile() && fs.existsSync(dest) ) {
           return true;
       }
       return false;
