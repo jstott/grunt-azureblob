@@ -6,8 +6,8 @@ module.exports = function(grunt) {
        //Shared Options Hash
       },
       configCDN : {
-        AZURE_STORAGE_ACCOUNT :'dev7',//'azure storage account name to use',
-        AZURE_STORAGE_ACCESS_KEY : 'hwLOdMA5upHRsWMQbcpuShksdAAgXxufCdmZRNer5bVZyJryXjyy+sx1YiZUf1djgdObHy9olJUcnq4iu4WTMg==',//'your-ssh-access-key-string would go here'
+        AZURE_STORAGE_ACCOUNT : //'azure storage account name to use',
+        AZURE_STORAGE_ACCESS_KEY : //'your-ssh-access-key-string would go here'
       }
     },
     'azureblob': {
@@ -23,7 +23,7 @@ module.exports = function(grunt) {
         options: {
           maskBaseDir: '../web/content/'  // strip off this prefix from files
         },
-        src: ['../web/content/**/*'] // copy all files from Content (exclude theams dir)
+        src: ['../web/content/**/*', '!../web/content/themes/**/*'] // copy all files from Content (exclude theams dir)
       },
       js :{
         options: {
