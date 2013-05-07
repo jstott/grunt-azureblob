@@ -1,0 +1,11 @@
+{
+  "name": "MySampleProject",
+  "title": "MySample",
+  "description": "Sample grunt-azureblob Demonstration",
+  "version": "0.2.1",
+    
+  "dependencies": {
+    "jquery": "*"
+  },
+  "keywords": []
+}

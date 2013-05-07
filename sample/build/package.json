@@ -1,0 +1,15 @@
+{
+  "name": "sampleBuild-blob",
+  "assetName": "blob-build",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt qunit"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-env": "~0.2.1"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "grunt-azureblob",
-  "version": "0.0.1",
-  "description": "copy html assets to azure blob/cdn storage",
+  "version": "0.0.2",
+  "description": "grunt task to copy html assets to azure blob/cdn storage",
   "author": "James Stott",
   "license": "MIT",
   "main": "Gruntfile.js",
@@ -20,5 +20,6 @@
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": ">=0.4.0",
     "grunt-contrib-nodeunit": "~0.1.2",
+    "tmp": ">=0.0.18"
   }
 }

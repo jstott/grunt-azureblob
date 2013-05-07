@@ -1,0 +1,59 @@
+﻿body {
+
+}
+.splash {
+
+    top: 0; left: 0;
+    text-align: center;
+    margin: 10% 0 0 0;
+    background: center top no-repeat url('images/Convey Insight 72dpi.png');
+}
+
+.splash .message {
+    font-size: 5em;
+    line-height: 1.5em;
+    -webkit-text-shadow: rgba(0, 0, 0, 0.5) 0px 0px 15px;
+    text-shadow: rgba(0, 0, 0, 0.5) 0px 0px 15px;
+    text-transform: uppercase;
+}
+
+.splash .icon-spinner {
+    text-align: center;
+    display: inline-block;
+    font-size: 5em;
+    margin-top: 150px;
+}
+
+.sidebar-nav {
+        padding: 9px 0;
+      }
+.main-content {
+    display:none;
+}
+
+/* Large desktop */
+@media (min-width: 1200px) {
+        /* Enable use of floated navbar text */
+        .navbar-text.pull-right {
+          float: none;
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+
+       
+}
+
+ 
+/* Portrait tablet to landscape and desktop */
+@media (min-width: 768px) and (max-width: 979px) {
+
+}
+ 
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) {
+
+
+}
+ 
+/* Landscape phones and down */
+@media (max-width: 480px) {  }
