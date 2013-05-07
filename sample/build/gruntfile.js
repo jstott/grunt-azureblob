@@ -6,8 +6,8 @@ module.exports = function(grunt) {
        //Shared Options Hash
       },
       configCDN : {
-        AZURE_STORAGE_ACCOUNT : //'azure storage account name to use',
-        AZURE_STORAGE_ACCESS_KEY : //'your-ssh-access-key-string would go here'
+        AZURE_STORAGE_ACCOUNT : 'azure storage account name to use',
+        AZURE_STORAGE_ACCESS_KEY : 'your-ssh-access-key-string would go here'
       }
     },
     'azureblob': {
