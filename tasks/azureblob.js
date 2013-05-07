@@ -32,7 +32,7 @@ module.exports = function(grunt) {
     //tmp.setGracefulCleanup(); //cleanup the temporary files even when an uncaught exception occurs.
 
     // execute task
-    Q.fcall(deleteContainer)
+    deleteContainer()
       .then(createContainer)
       .then(iterateFiles)
       .then(function(count) {
@@ -69,18 +69,18 @@ module.exports = function(grunt) {
     function deleteContainer() {
       var deferred = Q.defer();
      
-      if (!options.containerDelete) {
-        return true;
-      } 
-      grunt.log.write(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
-      blobService.deleteContainer(options.containerName, {timeoutIntervalInMs:25000}, function(err){
-        /* // ignore errors for now - just move on 
-        if (err) {
-          grunt.log.writeln(err);
-          deferred.reject(err);
+      if (options.containerDelete && !options.copySimulation) {
+       
+        grunt.log.write(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
+        blobService.deleteContainer(options.containerName, {timeoutIntervalInMs:25000}, function(err){
+          /* // ignore errors for now - just move on 
+          if (err) {
+            grunt.log.writeln(err);
+            deferred.reject(err);
+          }
+          */
+          grunt.log.ok();
         }
-        */
-        grunt.log.ok();
         deferred.resolve();
       });
       return deferred.promise;
@@ -98,7 +98,12 @@ module.exports = function(grunt) {
       options.containerOptions.timeoutIntervalInMs = options.containerOptions.timeoutIntervalInMs || 15000; // 10sec
       grunt.log.write(util.format('%s - Create blob containter [%s] ...', self.nameArgs, options.containerName));
       
-      grunt.util.async.whilst(continueAttempts, tryCreate, tryCallback);
+      if(options.copySimulation){
+        completed = true;
+        tryCallback();
+      } else {
+        grunt.util.async.whilst(continueAttempts, tryCreate, tryCallback);
+      }
       
       return deferred.promise;
 
