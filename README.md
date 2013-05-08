@@ -1,6 +1,6 @@
 # grunt-azureblob
 
-Grunt task for copying html assets to azure blob/cdn storage.
+Grunt [task] [1] for copying html assets to azure blob/cdn storage.
 
 # Installation
 Install npm package next to your projects gruntfile.js file
@@ -54,14 +54,14 @@ module.exports = function(grunt) {
         containerDelete: false,
         metadata: {cacheControl: 'public, max-age=31556926'}, // max-age 1 year for all entries
         gzip: true,
-        copySimulation: true,  // set true: only dry-run what copy would look like
+        copySimulation: true,  // set true: dry-run for what copy would look like in output
         destPrefix: '<%= pkg.version %>/'
       },
       css :{
         options: {
           maskBaseDir: '../web/Content/'  // strip off this prefix from files
         },
-        src: ['../web/Content/**/*','!../web/Content/themes/**/*'] // copy all files from Content (exclude theams dir)
+        src: ['../web/Content/**/*','!../web/Content/themes/**/*'] // copy all files from Content (exclude themes dir)
       },
       js :{
         options: {
@@ -86,9 +86,9 @@ grunt.event.on('qunit.moduleStart', function (name) {
   grunt.log.ok("Starting module: " + name);
 });
 ```
-## Sample Run (from Sample/build/gruntfile.js)
+## Sample console run (from sample/build/gruntfile.js)
 ```console
-c:/sample>grunt blob  
+c:\sample>grunt blob  
 
 Running "env:configCDN" (env) task
 
@@ -107,74 +107,17 @@ blobStorage copy completed (3) files...OK
 
 Done, without errors.
 ```
+
 ## Release History
 * 2013-04-19   v0.0.1  Initial release
 * 2013-05-07   v0.0.2  Release to npm
 
 
 ### Optional Ideas (specifically for .net web projects)
-Currently working on a HtmlHelperExtension class for simple read of the project.json file to extract the version number, and supply Razor syntax helper for CDN/BLOB storage url (and/or local url for debug).
-```c#
-<link href="//netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet" />
-    
-@Html.CdnLinkTag("player.all.css")
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
-````
-The HtmlHelperExtension starting off as:
-```c#
-namespace System.Web.Mvc
-{
-  public static class HtmlHelperExtension
-  {
-    const string cdnAssetUrl = "//xxx.vo.msecnd.net/assets/";
-    private const string verFile = "~/content/project.json"; // contains the version / build info for project
-    static string ver = "";
-    const bool forceLocal = false;
-    public static string Version
-    {
-      get
-      {
-        if (string.IsNullOrEmpty(ver))
-        {
-          string filePath = HttpContext.Current.Server.MapPath(verFile);
-          if (File.Exists(filePath))
-          {
-            ProjectJson spa = JsonConvert.DeserializeObject<ProjectJson>(File.ReadAllText(filePath));
-            ver = spa.version;
-          }
-          else
-          {
-            ver = "0.1.8"; // fallback
-          }
-        }
-        return ver;
-      }
-    }
-    public static HtmlString CdnStyleUrl(this HtmlHelper helper)
-    {
-      string url = string.Concat(cdnAssetUrl, Version, "/");;
-
-      if (helper.ViewContext.HttpContext.IsDebuggingEnabled || forceLocal)
-        url = "/content/";
-      return MvcHtmlString.Create(url);
-    }
-    public static HtmlString CdnLinkTag(this HtmlHelper helper, string target)
-    {
-      var minCss = target.Replace(".css", ".min.css");
-      var link = new TagBuilder("link");
-      link.Attributes["rel"] = "stylesheet";
-
-      if (helper.ViewContext.HttpContext.IsDebuggingEnabled || forceLocal)
-        link.Attributes["href"] = string.Concat("/content/", target);
-      else
-        link.Attributes["href"] = string.Concat(cdnAssetUrl, Version, "/", minCss);
-
-      return MvcHtmlString.Create(link.ToString(TagRenderMode.SelfClosing));
-    }
-    ...
-```
+* Sample for .net web projects (SPA) to use BLOB/CDN based on version in project.json file
 
 
 #### Mentions
 Thanks to litek/grunt-azure-storage for insiration and my first experience with grunt and azure storage.
+
+[1]: https://npmjs.org/package/grunt-azureblob 
