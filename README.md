@@ -114,10 +114,11 @@ Done, without errors.
 
 
 ### Optional Ideas (specifically for .net web projects)
-* Sample for .net web projects (SPA) to use BLOB/CDN based on version in project.json file
+* [Sample] [2] for .net web projects (SPA) to use BLOB/CDN based on version in project.json file
 
 
 #### Mentions
 Thanks to litek/grunt-azure-storage for insiration and my first experience with grunt and azure storage.
 
-[1]: https://npmjs.org/package/grunt-azureblob 
+[1]: https://npmjs.org/package/grunt-azureblob
+[2]: ../../wiki/
