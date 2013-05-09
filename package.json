@@ -12,7 +12,7 @@
     "url": "https://github.com/jstott/grunt-azureblob.git"
   },
   "keywords": [
-    "gruntplugin azure blob storage tablestorage cdn spa"
+    "gruntplugin","azure", "blob", "storage", "tablestorage", "cdn", "spa"
   ],
   "dependencies": {
     "azure": ">= 0.7.2",
