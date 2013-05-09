@@ -118,7 +118,7 @@ Done, without errors.
 
 
 #### Mentions
-Thanks to litek/grunt-azure-storage for insiration and my first experience with grunt and azure storage.
+Thanks to litek/grunt-azure-storage for inspiration and my first experience with grunt and azure storage.
 
 [1]: https://npmjs.org/package/grunt-azureblob
 [2]: ../../wiki/
