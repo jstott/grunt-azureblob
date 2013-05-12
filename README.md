@@ -18,7 +18,7 @@ grunt.loadNpmTasks('grunt-azureblob');
 
 
 ## AzureBlob Options and default values
-grunt-azureblob is a multi task that implicity iterates over all of its name sub-properties (targets).  In addition to the default properties , task specific properties are also available inside each task function.  Options are essentially available globaly (across tasks), but can be overridden / set at each task level as needed.
+grunt-azureblob is a multi task that implicity iterates over all of its name sub-properties (targets).  In addition to the default properties , task specific properties are also available inside each task function.  Options are essentially available globally (across tasks), but can be overridden / set at each task level as needed.
 
 ````javascript
 {
