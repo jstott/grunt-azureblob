@@ -112,7 +112,8 @@ Done, without errors.
 * 2013-04-19   v0.0.1  Initial release
 * 2013-05-07   v0.0.2  Release to npm
 * 2013-07-04   v0.0.3  Fix deleteContainer bug
-* 2013-07-04   v0.0.4  Fix maskBaseDir and destPrefix default to '', which is falsey which doesn't set the destination
+* 2013-07-04   v0.0.4  Fix missing 'tmp' dependancy on install
+* 2013-07-04   v0.0.5  Fix maskBaseDir and destPrefix default to '', which is falsey which doesn't set the destination
 
 ### Optional Ideas (specifically for .net web projects)
 * [Sample] [2] for .net web projects (SPA) to use BLOB/CDN based on version in project.json file
