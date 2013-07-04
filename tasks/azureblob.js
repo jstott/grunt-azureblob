@@ -71,7 +71,7 @@ module.exports = function(grunt) {
      
       if (options.containerDelete && !options.copySimulation) {
        
-        grunt.log.write(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
+        grunt.log.writeln(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
         blobService.deleteContainer(options.containerName, {timeoutIntervalInMs:25000}, function(err){
             /* // ignore errors for now - just move on 
             if (err) {
@@ -146,7 +146,7 @@ module.exports = function(grunt) {
     // Iterator called from grunt.util.async.forEachSeries - for each source file in task
     function copyFile(source, callback) {
 
-      var destination,  
+      var destination = source,  // set default destination same as source
           meta = options.metadata,
           srcFile = path.basename(source),
           gzip = options.gzip,
