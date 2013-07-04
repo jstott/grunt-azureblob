@@ -154,7 +154,7 @@ module.exports = function(grunt) {
           fnCopyToBlob;
 
       // only create gzip copies for css and js files 
-      if (fileExt != '.js' && fileExt != '.css') {
+      if (fileExt !== '.js' && fileExt !== '.css') {
           gzip = false;
       }
 
@@ -162,7 +162,7 @@ module.exports = function(grunt) {
       if (options.maskBaseDir) {
         destination = source.replace(options.maskBaseDir,'');
       }
-      if (options.destPrefix && options.destPrefix.length > 0 && options.destPrefix.substr(-1) != '/') {
+      if (options.destPrefix && options.destPrefix.length > 0 && options.destPrefix.substr(-1) !== '/') {
         options.destPrefix += '/';
       }
       if (options.destPrefix) {
@@ -224,11 +224,13 @@ module.exports = function(grunt) {
       gzip.on('error', function(err) {
         grunt.log.error(err);
         grunt.fail.warn('Gziping failed.');
-        def.reject(err);
+        deferred.reject(err);
       });
 
       tmp.tmpName({ template: 'tmp-XXXXXX' + fileExt }, function(err, tempFile) {
-        if (err) def.reject(err);
+        if (err) {
+          deferred.reject(err);
+        }
 
         inp = fs.createReadStream(source);
                 
