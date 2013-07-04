@@ -73,16 +73,18 @@ module.exports = function(grunt) {
        
         grunt.log.write(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
         blobService.deleteContainer(options.containerName, {timeoutIntervalInMs:25000}, function(err){
-          /* // ignore errors for now - just move on 
-          if (err) {
-            grunt.log.writeln(err);
-            deferred.reject(err);
-          }
-          */
-          grunt.log.ok();
-        }
+            /* // ignore errors for now - just move on 
+            if (err) {
+              grunt.log.writeln(err);
+              deferred.reject(err);
+            }
+            */
+            grunt.log.ok();
+        });
         deferred.resolve();
-      });
+      } else {
+        deferred.resolve();
+      }
       return deferred.promise;
     }
 
@@ -175,7 +177,7 @@ module.exports = function(grunt) {
       grunt.log.write(util.format('\tCopy %s => %s/%s ', srcFile, options.containerName, destination));
 
       if(options.copySimulation){
-          grunt.log.ok('sim');
+          grunt.log.ok('skip copy ok');
           callback();
           return;
       }
