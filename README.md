@@ -111,6 +111,7 @@ Done, without errors.
 ## Release History
 * 2013-04-19   v0.0.1  Initial release
 * 2013-05-07   v0.0.2  Release to npm
+* 2013-07-04   v0.0.3  Fix deleteContainer bug
 
 
 ### Optional Ideas (specifically for .net web projects)
