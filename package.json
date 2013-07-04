@@ -1,6 +1,6 @@
 {
   "name": "grunt-azureblob",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "grunt task to copy html assets to azure blob/cdn storage",
   "author": "James Stott",
   "license": "MIT",
@@ -12,7 +12,13 @@
     "url": "https://github.com/jstott/grunt-azureblob.git"
   },
   "keywords": [
-    "gruntplugin","azure", "blob", "storage", "tablestorage", "cdn", "spa"
+    "gruntplugin",
+    "azure",
+    "blob",
+    "storage",
+    "tablestorage",
+    "cdn",
+    "spa"
   ],
   "dependencies": {
     "azure": ">= 0.7.2",
@@ -23,6 +29,7 @@
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": ">=0.4.0",
     "grunt-contrib-nodeunit": "~0.1.2",
-    "tmp": ">=0.0.18"
+    "tmp": ">=0.0.18",
+    "grunt-contrib-copy": "~0.4.1"
   }
 }
