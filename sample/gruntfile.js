@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
   grunt.initConfig({
-    pkg: grunt.file.readJSON('../web/mySampleProject.json'),
+    pkg: grunt.file.readJSON('web/mySampleProject.json'),
     env : {
       options : {
        //Shared Options Hash
@@ -21,9 +21,9 @@ module.exports = function(grunt) {
       },
       css :{
         options: {
-          maskBaseDir: '../web/content/'  // strip off this prefix from files
+          maskBaseDir: 'web/content/'  // strip off this prefix from files
         },
-        src: ['../web/content/**/*', '!../web/content/themes/**/*'] // copy all files from Content (exclude theams dir)
+        src: ['web/content/**/*', '!web/content/themes/**/*'] // copy all files from Content (exclude theams dir)
       },
       js :{
         options: {
@@ -38,8 +38,9 @@ module.exports = function(grunt) {
   // Load the plugin that provides all the pirate magic
   grunt.loadNpmTasks('grunt-env'); // https://npmjs.org/package/grunt-env
   grunt.loadNpmTasks('grunt-azureblob');
+  
   // Default task(s).
-  grunt.registerTask('blob', ['env:configCDN', 'azureblob']); 
+  grunt.registerTask('default', ['env:configCDN', 'azureblob']); 
   
   grunt.event.on('qunit.spawn', function (url) {
     grunt.log.ok("Running test: " + url);
