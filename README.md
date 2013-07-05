@@ -13,8 +13,8 @@ grunt.loadNpmTasks('grunt-azureblob');
 ```
 # Environment Requirment
 + Azure SDK provides Node.js package for access to Azure Table Storage.  By default, this library uses the following environment variables for authentication (set as required as global, user, or with a task).  I've had great success with grunt-env to manage the these settings as a task (sample usage shown below).  _These environment variables must be set to your appropriate values!_
-  + AZURE_STORAGE_ACCOUNT 
-  + AZURE_STORAGE_ACCESS_KEY   
+  + AZURE_STORAGE_ACCOUNT
+  + AZURE_STORAGE_ACCESS_KEY
 
 
 ## AzureBlob Options and default values
@@ -27,14 +27,13 @@ grunt-azureblob is a multi task that implicity iterates over all of its name sub
   containerDelete: false, // deletes container if it exists
   containerOptions: {publicAccessLevel: "blob", timeoutIntervalInMs: 10000}, // container options
   copySimulation: false, // do everything but physically touch storage blob when true
-  destPrefix: '', // prefix to use for blob name e.g. 'v0.0.1/'
-  maskBaseDir: '',  // mask off directory portion to map files to root in storage container
   metadata: {cacheControl: 'public, max-age=31556926'}, // file metadata properties
-  gzip: false // gzip files (when true: only js / css will be gzip'd)
+  gzip: false, // gzip files (when true: only js / css will be gzip'd)
+  maxNumberOfConcurrentUploads: 10 // Maximum number of concurrent uploads
 };
 ````
 
-## Example gruntfile.js 
+## Example gruntfile.js
 ```javascript
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -54,21 +53,28 @@ module.exports = function(grunt) {
         containerDelete: false,
         metadata: {cacheControl: 'public, max-age=31556926'}, // max-age 1 year for all entries
         gzip: true,
-        copySimulation: true,  // set true: dry-run for what copy would look like in output
-        destPrefix: '<%= pkg.version %>/'
+        copySimulation: true  // set true: dry-run for what copy would look like in output
       },
       css :{
-        options: {
-          maskBaseDir: '../web/Content/'  // strip off this prefix from files
-        },
-        src: ['../web/Content/**/*','!../web/Content/themes/**/*'] // copy all files from Content (exclude themes dir)
+        files: [{
+          expand: true,
+          cwd: '../web/Content',
+          filter: 'isFile',
+          dest: '<%= pkg.version %>/',
+          src: ['**/*', '!themes/**/*'] // copy all files from Content (exclude themes dir)
+        }]
       },
       js :{
         options: {
-          containerDelete: false,
-          maskBaseDir: '../web/scripts/'
+          containerDelete: false
         },
-        src: ['../web/scripts/vendor*.js']
+        files: [{
+          expand: true,
+          cwd: '../web/scripts',
+          filter: 'isFile',
+          dest: '<%= pkg.version %>/',
+          src: ['vendor*.js']
+        }]
       }
     }
   });
@@ -77,8 +83,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-env'); // https://npmjs.org/package/grunt-env
   grunt.loadNpmTasks('grunt-azureblob');
   // Default task(s).
-  grunt.registerTask('blob', ['env:configCDN', 'azureblob']); 
-  
+  grunt.registerTask('blob', ['env:configCDN', 'azureblob']);
+
   grunt.event.on('qunit.spawn', function (url) {
   grunt.log.ok("Running test: " + url);
 });
@@ -88,7 +94,7 @@ grunt.event.on('qunit.moduleStart', function (name) {
 ```
 ## Sample console run (from sample/build/gruntfile.js)
 ```console
-c:\sample>grunt blob  
+c:\sample>grunt blob
 
 Running "env:configCDN" (env) task
 

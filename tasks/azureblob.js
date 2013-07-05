@@ -10,7 +10,6 @@ module.exports = function(grunt) {
       fs = require('fs'),
       tmp = require('tmp');
 
-
   grunt.registerMultiTask('azureblob', 'Copy html assets to azure blob/cdn storage', function() {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
@@ -20,10 +19,9 @@ module.exports = function(grunt) {
         containerOptions: {publicAccessLevel: "blob", timeoutIntervalInMs: 10000}, // container options
         metadata: {cacheControl: 'public, max-age=31556926'}, // file metadata properties
         copySimulation: false,
-        destPrefix: '', // detination path prefix to use for blob name e.g. 'v0.0.1/'
-        maskBaseDir: '',
-        gzip: false // gzip files
-      }), 
+        gzip: false, // gzip files
+        maxNumberOfConcurrentUploads: 10 // Maximum number of concurrent uploads
+      }),
       blobService = azure.createBlobService(),
       done = this.async(),
       self = this;
@@ -49,31 +47,30 @@ module.exports = function(grunt) {
     // returns a q promise
     function iterateFiles() {
       var deferred = Q.defer(),
-        files = self.filesSrc.filter(fileExists); // filesSrc can include dir's, not just files
+        files = self.files.filter(fileExistsAndIsWellFormed); // filesSrc can include dir's, not just files
 
-        grunt.verbose.writeln(util.format('\tprocess (%s) files',files.length));
+      grunt.verbose.writeln(util.format('\tprocess (%s) files', files.length));
 
-        // Iterate over all specified file groups.
-        grunt.util.async.forEachSeries(files, copyFile, function(err){
-          if (err) {
-            deferred.reject(err);
-          }
-          deferred.resolve(files.length);
-        });
+      // Iterate over all specified file groups, <options.maxNumberOfConcurrentUploads> files at a time
+      grunt.util.async.forEachLimit(files, options.maxNumberOfConcurrentUploads, copyFile, function(err){
+        if (err) {
+          deferred.reject(err);
+        }
+        deferred.resolve(files.length);
+      });
 
       return deferred.promise;
-    }   
+    }
 
     // When optioned, delete blob container
     // returns q promise
     function deleteContainer() {
       var deferred = Q.defer();
-     
+
       if (options.containerDelete && !options.copySimulation) {
-       
         grunt.log.writeln(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
         blobService.deleteContainer(options.containerName, {timeoutIntervalInMs:25000}, function(err){
-            /* // ignore errors for now - just move on 
+            /* // ignore errors for now - just move on
             if (err) {
               grunt.log.writeln(err);
               deferred.reject(err);
@@ -97,20 +94,20 @@ module.exports = function(grunt) {
           waitMs = 100,
           maxTry = 10;
 
-      options.containerOptions.timeoutIntervalInMs = options.containerOptions.timeoutIntervalInMs || 15000; // 10sec
+      options.containerOptions.timeoutIntervalInMs = options.containerOptions.timeoutIntervalInMs || 15000; // 15sec
       grunt.log.write(util.format('%s - Create blob containter [%s] ...', self.nameArgs, options.containerName));
-      
+
       if(options.copySimulation){
         completed = true;
         tryCallback();
       } else {
         grunt.util.async.whilst(continueAttempts, tryCreate, tryCallback);
       }
-      
+
       return deferred.promise;
 
       function continueAttempts() {
-        return  ((count < maxTry) && !completed); // sync truth test before each execution of fn
+        return ((count < maxTry) && !completed); // sync truth test before each execution of fn
       }
       function tryCreate(callback) {
         count++;
@@ -141,32 +138,21 @@ module.exports = function(grunt) {
             deferred.reject(err);
           }
       }
-    } 
+    }
 
-    // Iterator called from grunt.util.async.forEachSeries - for each source file in task
-    function copyFile(source, callback) {
-
-      var destination = source,  // set default destination same as source
+    // Iterator called from grunt.util.async.forEachLimit - for each source file in task
+    function copyFile(file, callback) {
+      var source = file.src,
+          destination = file.dest,
           meta = options.metadata,
           srcFile = path.basename(source),
           gzip = options.gzip,
           fileExt = path.extname(source),
           fnCopyToBlob;
 
-      // only create gzip copies for css and js files 
+      // only create gzip copies for css and js files
       if (fileExt !== '.js' && fileExt !== '.css') {
           gzip = false;
-      }
-
-      // ensure trailing slash is present in destination
-      if (options.maskBaseDir) {
-        destination = source.replace(options.maskBaseDir,'');
-      }
-      if (options.destPrefix && options.destPrefix.length > 0 && options.destPrefix.substr(-1) !== '/') {
-        options.destPrefix += '/';
-      }
-      if (options.destPrefix) {
-        destination = options.destPrefix + destination;
       }
 
       // configure proper azure metadata for file
@@ -174,18 +160,22 @@ module.exports = function(grunt) {
       meta.contentTypeHeader =  mime.lookup(source);
       meta.contentEncoding =  gzip ? 'gzip': null;
 
-      grunt.log.write(util.format('\tCopy %s => %s/%s ', srcFile, options.containerName, destination));
+      var logMessage = util.format('\tCopy %s => %s/%s ', srcFile, options.containerName, destination);
 
       if(options.copySimulation){
-          grunt.log.ok('skip copy ok');
-          callback();
-          return;
+        grunt.log.write(logMessage);
+        grunt.log.ok('skip copy ok');
+        callback();
+        return;
       }
 
       fnCopyToBlob = gzip ? compressFileToBlobStorage : copyFileToBlobStorage; // use correct fn to pre-compress
 
       Q.when(fnCopyToBlob(options.containerName, destination, source, meta))
         .then(function(){
+            grunt.log.write(logMessage); // We have to save logging about the file upload until here since
+                                         // we are iterating over many files concurrently. Otherwise the
+                                         // log output becomes interleaved and therefore unintelligible.
             grunt.log.ok();
             callback();
         }).done();
@@ -197,19 +187,19 @@ module.exports = function(grunt) {
                 return copyFileToBlobStorage(containerName, destFileName, tmpFile, metadata)
                         .finally(function(){
                           fs.unlinkSync(tmpFile);
-                          }); 
-            });
+                        });
+              });
     }
 
     function copyFileToBlobStorage(containerName, destFileName, sourceFile, metadata) {
       var deferred = Q.defer();
       blobService.createBlockBlobFromFile(containerName, destFileName, sourceFile, metadata, function(err) {
-          if (err) {
-            grunt.log.error(err);
-            deferred.reject(err);
-          } else {
-            deferred.resolve();
-          }
+        if (err) {
+          grunt.log.error(err);
+          deferred.reject(err);
+        } else {
+          deferred.resolve();
+        }
       });
       return deferred.promise;
     }
@@ -220,7 +210,7 @@ module.exports = function(grunt) {
         fileExt = path.extname(source),
         inp,
         out;
-          
+
       gzip.on('error', function(err) {
         grunt.log.error(err);
         grunt.fail.warn('Gziping failed.');
@@ -233,10 +223,10 @@ module.exports = function(grunt) {
         }
 
         inp = fs.createReadStream(source);
-                
+
         out = fs.createWriteStream(tempFile);
         out.on('close', function() {
-          deferred.resolve(tempFile); // once file closes, file is writen and avail.
+          deferred.resolve(tempFile); // once file closes, file is written and available.
         });
         inp.pipe(gzip).pipe(out);
         //inp.pipe(out); // test to just copy file
@@ -244,12 +234,15 @@ module.exports = function(grunt) {
       return deferred.promise;
     }
 
-    function fileExists (dest) {
-      if (fs.statSync(dest).isFile() && fs.existsSync(dest) ) {
-          return true;
+    function fileExistsAndIsWellFormed(file) {
+      if (file.src.length !== 1) {
+        grunt.fail.warn('File mapping must contain exactly one source to one destination.');
       }
-      return false;
+
+      file.src = file.src[0];
+
+      return fs.statSync(file.src).isFile() && fs.existsSync(file.src);
     }
-    
+
   });
 };
