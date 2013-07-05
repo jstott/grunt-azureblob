@@ -27,8 +27,6 @@ grunt-azureblob is a multi task that implicity iterates over all of its name sub
   containerDelete: false, // deletes container if it exists
   containerOptions: {publicAccessLevel: "blob", timeoutIntervalInMs: 10000}, // container options
   copySimulation: false, // do everything but physically touch storage blob when true
-  destPrefix: '', // prefix to use for blob name e.g. 'v0.0.1/'
-  maskBaseDir: '',  // mask off directory portion to map files to root in storage container
   metadata: {cacheControl: 'public, max-age=31556926'}, // file metadata properties
   gzip: false, // gzip files (when true: only js / css will be gzip'd)
   maxNumberOfConcurrentUploads: 10 // Maximum number of concurrent uploads
@@ -55,21 +53,28 @@ module.exports = function(grunt) {
         containerDelete: false,
         metadata: {cacheControl: 'public, max-age=31556926'}, // max-age 1 year for all entries
         gzip: true,
-        copySimulation: true,  // set true: dry-run for what copy would look like in output
-        destPrefix: '<%= pkg.version %>/'
+        copySimulation: true  // set true: dry-run for what copy would look like in output
       },
       css :{
-        options: {
-          maskBaseDir: '../web/Content/'  // strip off this prefix from files
-        },
-        src: ['../web/Content/**/*','!../web/Content/themes/**/*'] // copy all files from Content (exclude themes dir)
+        files: [{
+          expand: true,
+          cwd: '../web/Content',
+          filter: 'isFile',
+          dest: '<%= pkg.version %>/',
+          src: ['**/*', '!themes/**/*'] // copy all files from Content (exclude themes dir)
+        }]
       },
       js :{
         options: {
-          containerDelete: false,
-          maskBaseDir: '../web/scripts/'
+          containerDelete: false
         },
-        src: ['../web/scripts/vendor*.js']
+        files: [{
+          expand: true,
+          cwd: '../web/scripts',
+          filter: 'isFile',
+          dest: '<%= pkg.version %>/',
+          src: ['vendor*.js']
+        }]
       }
     }
   });

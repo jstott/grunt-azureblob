@@ -19,8 +19,6 @@ module.exports = function(grunt) {
         containerOptions: {publicAccessLevel: "blob", timeoutIntervalInMs: 10000}, // container options
         metadata: {cacheControl: 'public, max-age=31556926'}, // file metadata properties
         copySimulation: false,
-        destPrefix: '', // detination path prefix to use for blob name e.g. 'v0.0.1/'
-        maskBaseDir: '',
         gzip: false, // gzip files
         maxNumberOfConcurrentUploads: 10 // Maximum number of concurrent uploads
       }),
@@ -49,7 +47,7 @@ module.exports = function(grunt) {
     // returns a q promise
     function iterateFiles() {
       var deferred = Q.defer(),
-        files = self.filesSrc.filter(fileExists); // filesSrc can include dir's, not just files
+        files = self.files.filter(fileExistsAndIsWellFormed); // filesSrc can include dir's, not just files
 
       grunt.verbose.writeln(util.format('\tprocess (%s) files', files.length));
 
@@ -143,8 +141,9 @@ module.exports = function(grunt) {
     }
 
     // Iterator called from grunt.util.async.forEachLimit - for each source file in task
-    function copyFile(source, callback) {
-      var destination = source,  // set default destination same as source
+    function copyFile(file, callback) {
+      var source = file.src,
+          destination = file.dest,
           meta = options.metadata,
           srcFile = path.basename(source),
           gzip = options.gzip,
@@ -154,19 +153,6 @@ module.exports = function(grunt) {
       // only create gzip copies for css and js files
       if (fileExt !== '.js' && fileExt !== '.css') {
           gzip = false;
-      }
-
-      // ensure trailing slash is present in destination
-      if (options.maskBaseDir) {
-        destination = source.replace(options.maskBaseDir,'');
-      }
-
-      if (options.destPrefix && options.destPrefix.length > 0 && options.destPrefix.substr(-1) !== '/') {
-        options.destPrefix += '/';
-      }
-
-      if (options.destPrefix) {
-        destination = options.destPrefix + destination;
       }
 
       // configure proper azure metadata for file
@@ -248,8 +234,14 @@ module.exports = function(grunt) {
       return deferred.promise;
     }
 
-    function fileExists (dest) {
-      return fs.statSync(dest).isFile() && fs.existsSync(dest);
+    function fileExistsAndIsWellFormed(file) {
+      if (file.src.length !== 1) {
+        grunt.fail.warn('File mapping must contain exactly one source to one destination.');
+      }
+
+      file.src = file.src[0];
+
+      return fs.statSync(file.src).isFile() && fs.existsSync(file.src);
     }
 
   });
