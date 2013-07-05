@@ -9,7 +9,7 @@
     "test": "grunt qunit"
   },
   "dependencies": {
-    "grunt-azureblob": ">= 0.0.3",
+    "grunt-azureblob": ">= 0.1.1",
 	"grunt": "~0.4.1",
 	"grunt-env": "~0.2.1"
   },

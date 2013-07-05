@@ -36,7 +36,8 @@ module.exports = function(grunt) {
       .then(function(count) {
         grunt.log.write(util.format('blobStorage copy completed (%s) files...',count)).ok();
           done(true); // mark async done completed
-        }, function(error) {
+        })
+      .fail(function(error) {
          // handle any error from deleteContainer, createContainer or processFiles
          grunt.log.error(util.format('Error processing %s', self.nameArgs));
          grunt.fail.fatal(error);
@@ -68,18 +69,23 @@ module.exports = function(grunt) {
       var deferred = Q.defer();
 
       if (options.containerDelete && !options.copySimulation) {
-        grunt.log.writeln(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
+        grunt.log.write(util.format('%s - deleting container [%s] ...', self.nameArgs, options.containerName));
         blobService.deleteContainer(options.containerName, {timeoutIntervalInMs:25000}, function(err){
+          if (err) {
+              grunt.log.writeln(err);
+          }
             /* // ignore errors for now - just move on
             if (err) {
               grunt.log.writeln(err);
               deferred.reject(err);
             }
             */
-            grunt.log.ok();
         });
+        grunt.log.ok();
         deferred.resolve();
       } else {
+        grunt.log.write(util.format('skiping delete of container[%s]...',options.containerName));
+        grunt.log.ok();
         deferred.resolve();
       }
       return deferred.promise;
@@ -125,17 +131,18 @@ module.exports = function(grunt) {
                     callback(); // success
                   }
               });
-            },waitMs);
+            }, waitMs);
          waitMs = 10000; // up the wait-time after the initial attempt
       }
       function tryCallback(err){
+        var errorMessage = err || '[ no error reason given]';
         if (completed) {
             grunt.log.ok();
             deferred.resolve();
           } else {
-            grunt.log.writeln('createContainer not completed - deferred.rejected');
-            grunt.log.error(err);
-            deferred.reject(err);
+            grunt.log.writeln('! createContainer not completed !');
+            grunt.log.error(errorMessage);
+            deferred.reject(errorMessage);
           }
       }
     }
@@ -149,11 +156,6 @@ module.exports = function(grunt) {
           gzip = options.gzip,
           fileExt = path.extname(source),
           fnCopyToBlob;
-
-      // only create gzip copies for css and js files
-      if (fileExt !== '.js' && fileExt !== '.css') {
-          gzip = false;
-      }
 
       // configure proper azure metadata for file
       meta.contentType = mime.lookup(source);

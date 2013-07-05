@@ -11,26 +11,28 @@ module.exports = function(grunt) {
       }
     },
     'azureblob': {
-      options: {
+      options: { // global options applied to each task 
         containerName: 'assets',
-        containerDelete: false,
+        containerDelete: false, //do not apply true here, container would be deleted at each task
         metadata: {cacheControl: 'public, max-age=31556926'}, // max-age 1 year for all entries
-        gzip: false,
-        copySimulation: true,  // set true: only dry-run what copy would look like
-        destPrefix: '<%= pkg.version %>/'
+        gzip: true,
+        copySimulation: false  // set true: only dry-run what copy would look like
       },
-      css :{
-        options: {
-          maskBaseDir: 'web/content/'  // strip off this prefix from files
-        },
-        src: ['web/content/**/*', '!web/content/themes/**/*'] // copy all files from Content (exclude theams dir)
+      css: {
+          files: [{
+            expand: true,
+            cwd: 'web/Content/',
+            dest: '<%= pkg.version %>/css/',
+            src: ['**/*', '!themes/**/*']
+          }]
       },
-      js :{
-        options: {
-          containerDelete: false,
-          maskBaseDir: '../web/scripts/'
-        },
-        src: ['../web/scripts/*.js']
+      js: {
+        files: [{
+          expand: true,
+          cwd: 'web/scripts',
+          dest: '<%= pkg.version %>/js/',
+          src: ['*.js']
+        }]
       }
     }
   });
@@ -38,7 +40,7 @@ module.exports = function(grunt) {
   // Load the plugin that provides all the pirate magic
   grunt.loadNpmTasks('grunt-env'); // https://npmjs.org/package/grunt-env
   grunt.loadNpmTasks('grunt-azureblob');
-  
+
   // Default task(s).
   grunt.registerTask('default', ['env:configCDN', 'azureblob']); 
   
