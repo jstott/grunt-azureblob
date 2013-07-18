@@ -1,3 +1,11 @@
+/*
+ * grunt-azureblob
+ * https://github.com/jstott/grunt-azureblob//
+ *
+ * Copyright (c) 2013 James Stott, contributors
+ * Licensed under the MIT license.
+ */
+ 
 'use strict';
 
 module.exports = function(grunt) {
