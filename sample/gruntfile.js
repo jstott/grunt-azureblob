@@ -16,7 +16,7 @@ module.exports = function(grunt) {
         containerDelete: false, //do not apply true here, container would be deleted at each task
         metadata: {cacheControl: 'public, max-age=31556926'}, // max-age 1 year for all entries
         gzip: true,
-        copySimulation: false  // set true: only dry-run what copy would look like
+        copySimulation: true  // set true: only dry-run what copy would look like
       },
       css: {
           files: [{
