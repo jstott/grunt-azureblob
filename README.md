@@ -1,6 +1,6 @@
 # grunt-azureblob
 
-Grunt [task] [1] for copying html assets to azure blob/cdn storage.
+A Grunt [task] [1] for copying html assets to azure blob/cdn storage.
 
 # Installation
 Install npm package next to your projects gruntfile.js file
@@ -11,36 +11,14 @@ Add this line to your projects gruntfile.js
 
         grunt.loadNpmTasks('grunt-azureblob');
 
-# Breaking changes as of 0.1.1
-As of v0.1.1 - the file option definition has changed.  Each task definition uses Grunt's standardized file mapping utilities.  Consult Grunt's documentation pages at [gruntjs.com/configuring-tasks#files][files] for additional samples if needed.
-
-### Old syntax sample:
-      css: {
-            options: {
-              destPrefix: '<%= pkg.version %>/'
-              maskBaseDir: 'web/Content/'
-            },
-            src: ['web/Content/**/*','!web/Content/themes/**/*']
-          }
-### New syntax sample: (standardized & straightforward):
-      css: {
-            files: [{
-              expand: true,
-              cwd: 'web/Content',
-              dest: '<%= pkg.version %>/',
-              src: ['**/*', '!themes/**/*']
-            }]
-          }
-
-
 # Environment Requirment
-+ Azure SDK provides Node.js package for access to Azure Table Storage.  By default, this library uses the following environment variables for authentication (set as required as global, user, or with a task).  I've had great success with grunt-env to manage the these settings as a task (sample usage shown below).  _These environment variables must be set to your appropriate values!_
++ The Azure SDK provides a Node.js package for access to the Azure Table Storage.  By default, this library uses the following environment variables for authentication (set as required as global, user, or with a task).  I've had great success with grunt-env to manage the these settings as a task (sample usage shown below).  _These environment variables must be set to your appropriate values!_
   + AZURE_STORAGE_ACCOUNT
   + AZURE_STORAGE_ACCESS_KEY
 
 
 ## AzureBlob Options and default values
-grunt-azureblob is a multi task that implicity iterates over all of its name sub-properties (targets).  In addition to the default properties , task specific properties are also available inside each task function.  Options are essentially available globally (across tasks), but can be overridden / set at each task level as needed.
+grunt-azureblob is a multi task that implicity iterates over all of the named sub-properties (targets).  In addition to the default properties , task specific properties are also available inside each task function.  Options are essentially globally available (across tasks), but can be overridden / set at each task level as needed.
 
   
         {
@@ -137,13 +115,34 @@ grunt-azureblob is a multi task that implicity iterates over all of its name sub
 
 
 ## Release History
-* 2013-04-19   v0.0.1  Initial release
-* 2013-05-07   v0.0.2  Release to npm
-* 2013-07-04   v0.0.3  Fix deleteContainer bug
-* 2013-07-04   v0.0.4  Fix missing 'tmp' dependancy on install
-* 2013-07-04   v0.0.5  Fix maskBaseDir and destPrefix default to '', which is falsey which doesn't set the destination
+
+* 2013-08-24   v0.1.2  Fix #6 - blob "Content Type" meta not not be correct - issue with passing meta object.
+* 2013-07-05   v0.1.1  Includes pull-request from [altano][pull5]): Added maxNumberOfConcurrentUploads, remove maskBaseDir and destPrefix options (simplify files options for each task).  Elminate restriction of gzip'd files to [.js, .css]  
+As of v0.1.1 - the file option definition has changed.  Each task definition uses Grunt's standardized file mapping utilities.  Consult Grunt's documentation pages at [gruntjs.com/configuring-tasks#files][files] for additional samples if needed.
+
+### Old syntax sample:
+      css: {
+            options: {
+              destPrefix: '<%= pkg.version %>/'
+              maskBaseDir: 'web/Content/'
+            },
+            src: ['web/Content/**/*','!web/Content/themes/**/*']
+          }
+### New syntax sample: (standardized & straightforward):
+      css: {
+            files: [{
+              expand: true,
+              cwd: 'web/Content',
+              dest: '<%= pkg.version %>/',
+              src: ['**/*', '!themes/**/*']
+            }]
+          }
 * <-- breaking changes -->
-* 2013-07-05   v0.1.1  (Includes pull-request from [altano][pull5]): Added maxNumberOfConcurrentUploads, remove maskBaseDir and destPrefix options (simplify files options for each task).  Elminate restriction of gzip'd files to [.js, .css]  
+* 2013-07-04   v0.0.5  Fix maskBaseDir and destPrefix default to '', which is falsey which doesn't set the destination
+* 2013-07-04   v0.0.4  Fix missing 'tmp' dependancy on install
+* 2013-07-04   v0.0.3  Fix deleteContainer bug
+* 2013-05-07   v0.0.2  Release to npm
+* 2013-04-19   v0.0.1  Initial release
 
 ### Optional Ideas (specifically for .net web projects)
 * [Sample] [2] for .net web projects (SPA) to use BLOB/CDN based on version in project.json file
