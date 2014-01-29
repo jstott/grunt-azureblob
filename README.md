@@ -99,13 +99,13 @@ grunt-azureblob is a multi task that implicity iterates over all of the named su
         Running "env:configCDN" (env) task
 
         Running "azureblob:css" (azureblob) task
-        azureblob:css - Create blob containter [assets] ...OK
+        azureblob:css - Create blob container [assets] ...OK
                 Copy index.css => assets/0.2.1/index.css >> skip copy ok
                 Copy ajax-loader.gif => assets/0.2.1/images/ajax-loader.gif >> skip copy ok
         blobStorage copy completed (2) files...OK
 
         Running "azureblob:js" (azureblob) task
-        azureblob:js - Create blob containter [assets] ...OK
+        azureblob:js - Create blob container [assets] ...OK
                 Copy amplify.min.js => assets/0.2.1/amplify.min.js >> skip copy ok
                 Copy knockout-2.2.1.js => assets/0.2.1/knockout-2.2.1.js >> skip copy ok
                 Copy q.min.js => assets/0.2.1/q.min.js >> skip copy ok

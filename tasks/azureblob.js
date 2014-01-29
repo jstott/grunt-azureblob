@@ -111,7 +111,7 @@ module.exports = function(grunt) {
         maxTry = 10;
 
       options.containerOptions.timeoutIntervalInMs = options.containerOptions.timeoutIntervalInMs || 15000; // 15sec
-      grunt.log.write(util.format('%s - Create blob containter [%s] ...', self.nameArgs, options.containerName));
+      grunt.log.write(util.format('%s - Create blob container [%s] ...', self.nameArgs, options.containerName));
 
       if (options.copySimulation) {
         completed = true;
