@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       gzip: false, // gzip files
       maxNumberOfConcurrentUploads: 10 // Maximum number of concurrent uploads
     }),
-      blobService = azure.createBlobService(),
+      blobService = azure.createBlobService.apply(azure, options.serviceOptions),
       done = this.async(),
       self = this;
 
